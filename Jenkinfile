@@ -1,5 +1,5 @@
-import hudson.model.*
 /*Variable to get jenkins job information*/
+
 def buildURL = "${env.BUILD_URL}"
 def buildNum = "${env.BUILD_NUMBER}"
 def jobName = "${env.JOB_NAME}"
