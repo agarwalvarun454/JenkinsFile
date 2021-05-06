@@ -17,7 +17,7 @@ node
                     labels:
                       label: label
                 spec:
-                    serviceAccount: ServiceAccountName # Name of the service account used in jenkins container.
+                    serviceAccount: ServiceAccountName #Name of the service account used in jenkins master POD
                     serviceAccountName: ServiceAccountName
                     affinity:
                        nodeAffinity:
@@ -30,30 +30,30 @@ node
                               - example.com #This is an example name.Add as many node you want with "-" prefix in each line
                     containers:
                       - name: jnlp
-                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        image: docker-registry.com/image_name  #Path of the registry where image is stored
                         resources:
                             requests:
-                                cpu: 500m #Sample number. Decide as per your requirement
+                                cpu: 500m      #Sample number. Decide as per your requirement
                                 memory: 1024Mi #Sample number. Decide as per your requirement
                             limits:
                                 memory: 1024Mi #Sample number. Decide as per your requirement
                       - name: container_1
-                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        image: docker-registry.com/image_name  #Path of the registry where image is stored
                         ttyEnabled: true
                         command: ["/bin/sh"]
-                        args: ["-c", "while true; do echo hello; sleep 1;done"]
+                        args: ["-c", "while true; do echo hello; sleep 1;done"]   #This is used to run the container until the job is finished
                       - name: container_2
-                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        image: docker-registry.com/image_name  #Path of the registry where image is stored
                         ttyEnabled: true
                         command: ["/bin/sh"]
-                        args: ["-c", "while true; do echo hello; sleep 1;done"]
+                        args: ["-c", "while true; do echo hello; sleep 1;done"]  #This is used to run the container until the job is finished
                         resources:
                             requests:
-                                cpu: 250m   #Sample number. Decide as per your requirement
-                                memory: 500Mi  #Sample number. Decide as per your requirement
+                                cpu: 250m     #Sample number. Decide as per your requirement
+                                memory: 500Mi #Sample number. Decide as per your requirement
                             limits:
-                                cpu: 500m   #Sample number. Decide as per your requirement
-                                memory: 1500Mi  #Sample number. Decide as per your requirement
+                                cpu: 500m     #Sample number. Decide as per your requirement
+                                memory: 1500Mi #Sample number. Decide as per your requirement
                             """
     )
  {
@@ -74,21 +74,22 @@ node
                     {
                      echo "This is stage 2 which is perform in container_1 "
                      }
-                    }
+                  }
                    
                   
                  stage('Test')
                  {
                    container('container_2') #Name of the container first
-                   
                     {
                      echo "This is stage 3 which is perform in container_2 "
                      }
-                    }
-                  }
-        catch (Exception error) # Catching the exception if any as per requirement
-		    {
+                   }
+                 }
+             catch (Exception error) # Catching the exception if any as per requirement
+	       {
 			  println ("Exception: ${error}")
                    }
-                   }
+             }
 
+   }
+}   
