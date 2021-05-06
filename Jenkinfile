@@ -1,0 +1,94 @@
+import hudson.model.*
+/*Variable to get jenkins job information*/
+def buildURL = "${env.BUILD_URL}"
+def buildNum = "${env.BUILD_NUMBER}"
+def jobName = "${env.JOB_NAME}"
+def label = "${JOB_NAME}-${BUILD_ID}"
+
+node  
+{
+ podTemplate(
+                cloud: 'openshift',
+                label: label,
+                yaml: """
+                apiVersion: v1
+                kind: Pod
+                metadata:
+                    labels:
+                      label: label
+                spec:
+                    serviceAccount: ServiceAccountName # Name of the service account used in jenkins container.
+                    serviceAccountName: ServiceAccountName
+                    affinity:
+                       nodeAffinity:
+                         requiredDuringSchedulingIgnoredDuringExecution:
+                          nodeSelectorTerms:
+                          - matchExpressions:
+                            - key: kubernetes.io/hostname
+                              operator: In
+                              values:
+                              - example.com #This is an example name.Add as many node you want with "-" prefix in each line
+                    containers:
+                      - name: jnlp
+                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        resources:
+                            requests:
+                                cpu: 500m #Sample number. Decide as per your requirement
+                                memory: 1024Mi #Sample number. Decide as per your requirement
+                            limits:
+                                memory: 1024Mi #Sample number. Decide as per your requirement
+                      - name: container_1
+                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        ttyEnabled: true
+                        command: ["/bin/sh"]
+                        args: ["-c", "while true; do echo hello; sleep 1;done"]
+                      - name: container_2
+                        image: docker-registry.com/image_name  # Path of the registry where image is stored
+                        ttyEnabled: true
+                        command: ["/bin/sh"]
+                        args: ["-c", "while true; do echo hello; sleep 1;done"]
+                        resources:
+                            requests:
+                                cpu: 250m   #Sample number. Decide as per your requirement
+                                memory: 500Mi  #Sample number. Decide as per your requirement
+                            limits:
+                                cpu: 500m   #Sample number. Decide as per your requirement
+                                memory: 1500Mi  #Sample number. Decide as per your requirement
+                            """
+    )
+ {
+      node(label)
+        {
+            try
+            {
+                stage('Build')
+                {
+                  echo "This is stage 1"
+                  
+                  }
+                  
+                 stage('Deploy')
+                 {
+                   container('container_1') #Name of the container first
+                   
+                    {
+                     echo "This is stage 2 which is perform in container_1 "
+                     }
+                    }
+                   
+                  
+                 stage('Test')
+                 {
+                   container('container_2') #Name of the container first
+                   
+                    {
+                     echo "This is stage 3 which is perform in container_2 "
+                     }
+                    }
+                  }
+        catch (Exception error) # Catching the exception if any as per requirement
+		    {
+			  println ("Exception: ${error}")
+                   }
+                   }
+
